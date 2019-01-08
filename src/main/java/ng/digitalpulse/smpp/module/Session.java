@@ -83,7 +83,7 @@ public class Session {
             WORKER.add(enquireLinScheduledFuture);
             ScheduledFuture<?> reBindScheduledFuture = SCHEDULEDEXECUTORSERVICE.scheduleAtFixedRate(() -> {
                 bindService.bind();
-            }, 2, 5, TimeUnit.MINUTES);
+            }, 2, 2, TimeUnit.MINUTES);
             WORKER.add(reBindScheduledFuture);
         }
     }
