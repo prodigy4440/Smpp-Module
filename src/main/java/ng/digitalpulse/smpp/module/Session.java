@@ -55,6 +55,8 @@ public class Session {
     private ScheduledExecutorService SCHEDULEDEXECUTORSERVICE;
     
     private String TAG ="";
+    
+    private Integer reBindTimeInMinutes;
 
     public Session(String tag, String systemId, String password, SmppBindType smppBindType,
             String host, Integer port) {
@@ -63,12 +65,17 @@ public class Session {
 
     public Session(String tag, String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port) {
+        this(tag, systemId, systemId, password, systemId, smppBindType, host, port, 5);
+    }
+   public Session(String tag, String name, String systemId, String password, String systemType,
+            SmppBindType smppBindType, String host, Integer port, Integer reBindTimeInMinutes) {
         this.TAG = tag;
+        this.reBindTimeInMinutes = reBindTimeInMinutes;
         bindService = new BindService(name, systemType, smppBindType, host, port, systemId, password);
         enquireLinkService = new EnquireLinkService();
         SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
     }
-
+    
     public void setSmsReceiver(SmsListener smsListener) {
         this.smsListener = smsListener;
     }
@@ -83,7 +90,7 @@ public class Session {
             WORKER.add(enquireLinScheduledFuture);
             ScheduledFuture<?> reBindScheduledFuture = SCHEDULEDEXECUTORSERVICE.scheduleAtFixedRate(() -> {
                 bindService.bind();
-            }, 2, 2, TimeUnit.MINUTES);
+            }, 2, reBindTimeInMinutes, TimeUnit.MINUTES);
             WORKER.add(reBindScheduledFuture);
         }
     }
