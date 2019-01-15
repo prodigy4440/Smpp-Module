@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ng.digitalpulse.smpp.module.domain.SmsStatus;
+import ng.digitalpulse.smpp.module.util.MessageLogger;
 
 /**
  *
@@ -116,6 +117,55 @@ public class Session {
         }
 
     }
+    
+    //    msgType continue is 1 and end is 2
+    public void sendUssd(String source, String destination, String message, int messageType) {
+        try {
+
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+            SubmitSm submit = new SubmitSm();
+            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+
+            submit.setSourceAddress(new Address((byte) 0x03, (byte) 0x00, source));
+            submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            submit.setShortMessage(textBytes);
+            Tlv tlv;
+            if (messageType == 1) {
+                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, "ussd_service_op");
+            } else {
+                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
+            }
+            submit.setOptionalParameter(tlv);
+            submit.setServiceType("USSD");
+            smppSession.sendRequestPdu(submit, 10000, false);
+        } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
+                | SmppTimeoutException | SmppChannelException ie) {
+            MessageLogger.error(Session.class, "Error in SubmitSm", ie);
+        }
+    }
+
+    public synchronized SmsStatus sendUssd(String sender, String message, String receiver) {
+        if (Objects.nonNull(smppSession)) {
+            try {
+                byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+                SubmitSm submit = new SubmitSm();
+                submit.setSourceAddress(new Address((byte) 5, (byte) 9, sender));
+                submit.setDestAddress(new Address((byte) 1, (byte) 1, receiver));
+                submit.setShortMessage(textBytes);
+                SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
+                String messageId = submitSmResp.getMessageId();
+                SmsStatus smsStatus = new SmsStatus(true, messageId, "Success");
+                return smsStatus;
+            } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
+                    | SmppTimeoutException | SmppChannelException ie) {
+                return new SmsStatus(false, null, ie.getMessage());
+            }
+        } else {
+            return new SmsStatus(false, null, "Session not bound");
+        }
+
+    }
+    
 
     public boolean querySms() {
         return false;
