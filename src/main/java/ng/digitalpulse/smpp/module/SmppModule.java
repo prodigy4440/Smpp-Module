@@ -16,16 +16,16 @@ public class SmppModule {
 
     //Test
     public static void main(String[] args) throws InterruptedException {
-//        Session session = new Session("Session Name","systemid", "password",
-//                SmppBindType.TRANSMITTER, "ip-address", 38880);
-//        
-//        TimeUnit.SECONDS.sleep(10);
-//        session.bindSession();
-//        System.out.println("Session Status: " + session.getBindStatus());
-//        TimeUnit.SECONDS.sleep(10);
-//        session.unBindSession();
-        MobileNetwork.Network phone = Telcoms.getInstance().getNetwork("08131631151");
-        System.out.println(phone);
+        Session session = new Session("Airtel","JAMB", "z6+Wc$4v",
+                SmppBindType.TRANSMITTER, "172.24.11.125", 31110);
+        
+        TimeUnit.SECONDS.sleep(10);
+        session.bindSession();
+        System.out.println("Session Status: " + session.getBindStatus());
+        TimeUnit.SECONDS.sleep(10);
+        session.unBindSession();
+//        MobileNetwork.Network phone = Telcoms.getInstance().getNetwork("08131631151");
+//        System.out.println(phone);
     }
 
 }
