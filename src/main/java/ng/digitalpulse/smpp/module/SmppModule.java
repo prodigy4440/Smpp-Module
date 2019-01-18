@@ -20,7 +20,7 @@ public class SmppModule {
 //                SmppBindType.TRANSMITTER, "172.24.11.125", 31110);
         
         Session session = new Session("Airtel", "JAMB", "JAMB", "z6+Wc$4v", null, 
-                SmppBindType.TRANSMITTER, "172.24.11.125", 31110, 2);
+                SmppBindType.TRANSCEIVER, "172.24.11.125", 31110, 2);
         
         TimeUnit.SECONDS.sleep(10);
         session.bindSession();
