@@ -66,7 +66,7 @@ public class Session {
 
     public Session(String tag, String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port) {
-        this(tag, systemId, systemId, password, systemType, smppBindType, host, port, 5);
+        this(tag, name, systemId, password, systemType, smppBindType, host, port, 5);
     }
    public Session(String tag, String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port, Integer reBindTimeInMinutes) {
@@ -202,6 +202,7 @@ public class Session {
             config.setName(name);
             config.setHost(host);
             config.setPort(port);
+            config.setSystemType(systemType);
             config.setConnectTimeout(10000);
             config.setRequestExpiryTimeout(30000);
             config.setWindowMonitorInterval(15000);
