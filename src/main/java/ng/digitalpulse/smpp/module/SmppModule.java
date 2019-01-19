@@ -16,11 +16,8 @@ public class SmppModule {
 
     //Test
     public static void main(String[] args) throws InterruptedException {
-//        Session session = new Session("Airtel","JAMB", "z6+Wc$4v",
-//                SmppBindType.TRANSMITTER, "172.24.11.125", 31110);
-        
-        Session session = new Session("Airtel", "JAMB", "JAMB", "z6+Wc$4v", null, 
-                SmppBindType.TRANSCEIVER, "172.24.11.125", 31110, 2);
+        Session session = new Session("Bind tag","SystemId", "System Password",
+                SmppBindType.TRANSMITTER, "ip", 8080);
         
         TimeUnit.SECONDS.sleep(10);
         session.bindSession();
