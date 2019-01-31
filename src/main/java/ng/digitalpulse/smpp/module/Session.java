@@ -202,6 +202,7 @@ public class Session {
             config.setName(name);
             config.setHost(host);
             config.setPort(port);
+            config.setType(smppBindType);
             config.setSystemType(systemType);
             config.setConnectTimeout(10000);
             config.setRequestExpiryTimeout(30000);
