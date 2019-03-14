@@ -153,7 +153,7 @@ public class Session {
         }
     }
 
-    public void sendLongSms(String sender, String receiver, String message) {
+    public void sendLongMessage(String sender, String receiver, String message) {
         byte sourceTon = (byte) 0x03;
         if (sender != null && sender.length() > 0) {
             sourceTon = (byte) 0x05;
