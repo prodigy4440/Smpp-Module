@@ -38,7 +38,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ng.digitalpulse.smpp.module.domain.SmsStatus;
 import ng.digitalpulse.smpp.module.util.MessageLogger;
-import ng.digitalpulse.smpp.module.util.PartUtil;
 
 /**
  *
@@ -150,37 +149,6 @@ public class Session {
             }
         } else {
             return new SmsStatus(false, null, "Session not bound");
-        }
-    }
-
-    public void sendLongMessage(String sender, String receiver, String message) {
-        byte sourceTon = (byte) 0x03;
-        if (sender != null && sender.length() > 0) {
-            sourceTon = (byte) 0x05;
-        }
-
-        byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_ISO_8859_15);
-
-        int maximumMultipartMessageSegmentSize = 134;
-        byte[] byteSingleMessage = textBytes;
-        byte[][] parts = PartUtil.splitUnicodeMessage(byteSingleMessage, maximumMultipartMessageSegmentSize);
-        // submit all messages
-        for (int i = 0; i < parts.length; i++) {
-            try {
-                SubmitSm submit0 = new SubmitSm();
-                submit0.setEsmClass(SmppConstants.ESM_CLASS_UDHI_MASK);
-                submit0.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
-                submit0.setSourceAddress(new Address(sourceTon, (byte) 0x00, sender));
-                submit0.setDestAddress(new Address((byte) 0x03, (byte) 0x00, receiver));
-                submit0.setShortMessage(parts[i]);
-                smppSession.submit(submit0, 10000);
-            } catch (SmppInvalidArgumentException ex) {
-                Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (RecoverablePduException | UnrecoverablePduException | SmppTimeoutException 
-                    | SmppChannelException | InterruptedException ex) {
-                Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
         }
     }
 
