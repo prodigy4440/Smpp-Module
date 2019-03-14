@@ -24,6 +24,7 @@ import com.cloudhopper.smpp.type.Address;
 import com.cloudhopper.smpp.type.LoggingOptions;
 import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
+import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ng.digitalpulse.smpp.module.domain.SmsStatus;
 import ng.digitalpulse.smpp.module.util.MessageLogger;
+import ng.digitalpulse.smpp.module.util.PartUtil;
 
 /**
  *
@@ -50,13 +52,13 @@ public class Session {
 
     private SmsListener smsListener;
     private EnquireLinkService enquireLinkService;
-    
+
     private final List<ScheduledFuture<?>> WORKER = new LinkedList<>();
 
     private ScheduledExecutorService SCHEDULEDEXECUTORSERVICE;
-    
-    private String TAG ="";
-    
+
+    private String TAG = "";
+
     private Integer reBindTimeInMinutes;
 
     public Session(String tag, String systemId, String password, SmppBindType smppBindType,
@@ -68,7 +70,8 @@ public class Session {
             SmppBindType smppBindType, String host, Integer port) {
         this(tag, name, systemId, password, systemType, smppBindType, host, port, 5);
     }
-   public Session(String tag, String name, String systemId, String password, String systemType,
+
+    public Session(String tag, String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port, Integer reBindTimeInMinutes) {
         this.TAG = tag;
         this.reBindTimeInMinutes = reBindTimeInMinutes;
@@ -76,7 +79,7 @@ public class Session {
         enquireLinkService = new EnquireLinkService();
         SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
     }
-    
+
     public void setSmsReceiver(SmsListener smsListener) {
         this.smsListener = smsListener;
     }
@@ -95,7 +98,7 @@ public class Session {
             WORKER.add(reBindScheduledFuture);
         }
     }
-    
+
     public synchronized SmsStatus sendSms(String sender, String message, String receiver) {
         if (Objects.nonNull(smppSession)) {
             try {
@@ -117,7 +120,70 @@ public class Session {
         }
 
     }
-    
+
+    public SmsStatus sendLongSms(String sender, String receiver, String message,
+            boolean requestDeliveryReceipt) {
+
+        if (Objects.nonNull(smppSession)) {
+
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_ISO_8859_1);
+
+            try {
+                SubmitSm submitMsg = new SubmitSm();
+                // add delivery receipt if enabled.
+                if (requestDeliveryReceipt) {
+                    submitMsg.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+                }
+                submitMsg.setSourceAddress(new Address((byte) 0x03, (byte) 0x00, sender));
+                submitMsg.setDestAddress(new Address((byte) 0x01, (byte) 0x01, receiver));
+                if (textBytes != null && textBytes.length > 255) {
+                    submitMsg.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes, "message_payload"));
+                } else {
+                    submitMsg.setShortMessage(textBytes);
+                }
+
+                SubmitSmResp submitResp = smppSession.submit(submitMsg, 15000);
+                SmsStatus status = new SmsStatus(true, submitResp.getMessageId(), "Success");
+                return status;
+            } catch (RecoverablePduException | SmppChannelException | SmppTimeoutException | UnrecoverablePduException | InterruptedException ex) {
+                return new SmsStatus(false, null, ex.getMessage());
+            }
+        } else {
+            return new SmsStatus(false, null, "Session not bound");
+        }
+    }
+
+    public void sendLongSms(String sender, String receiver, String message) {
+        byte sourceTon = (byte) 0x03;
+        if (sender != null && sender.length() > 0) {
+            sourceTon = (byte) 0x05;
+        }
+
+        byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_ISO_8859_15);
+
+        int maximumMultipartMessageSegmentSize = 134;
+        byte[] byteSingleMessage = textBytes;
+        byte[][] parts = PartUtil.splitUnicodeMessage(byteSingleMessage, maximumMultipartMessageSegmentSize);
+        // submit all messages
+        for (int i = 0; i < parts.length; i++) {
+            try {
+                SubmitSm submit0 = new SubmitSm();
+                submit0.setEsmClass(SmppConstants.ESM_CLASS_UDHI_MASK);
+                submit0.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+                submit0.setSourceAddress(new Address(sourceTon, (byte) 0x00, sender));
+                submit0.setDestAddress(new Address((byte) 0x03, (byte) 0x00, receiver));
+                submit0.setShortMessage(parts[i]);
+                smppSession.submit(submit0, 10000);
+            } catch (SmppInvalidArgumentException ex) {
+                Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (RecoverablePduException | UnrecoverablePduException | SmppTimeoutException 
+                    | SmppChannelException | InterruptedException ex) {
+                Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+    }
+
     //    msgType continue is 1 and end is 2
     public void sendUssd(String source, String destination, String message, int messageType) {
         try {
@@ -165,7 +231,6 @@ public class Session {
         }
 
     }
-    
 
     public boolean querySms() {
         return false;
@@ -216,7 +281,7 @@ public class Session {
         }
 
         public void bind() {
-            System.out.println("****** Entering Session Bind For "+TAG+"  ******");
+            System.out.println("****** Entering Session Bind For " + TAG + "  ******");
             if (Objects.nonNull(smppSession)) {
                 unbind();
             }
@@ -224,7 +289,7 @@ public class Session {
             try {
                 DefaultSmppSessionHandler handler = new ClientSmppSessionHandler();
                 smppSession = smppClient.bind(config, handler);
-                System.out.println("Bind Done For "+TAG+" ");
+                System.out.println("Bind Done For " + TAG + " ");
                 System.out.println("Session Info, Name: "
                         + TAG + ", Bind Type: " + smppSession.getBindType()
                         + ", IsOpen: " + smppSession.isOpen() + ", IsBound: " + smppSession.isBound());
@@ -235,7 +300,7 @@ public class Session {
                 System.out.println("Bind Fail: " + ex.getMessage());
                 Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
             }
-            System.out.println("****** Exiting Session Bind For "+TAG+" ******");
+            System.out.println("****** Exiting Session Bind For " + TAG + " ******");
         }
 
         public void unbind() {
