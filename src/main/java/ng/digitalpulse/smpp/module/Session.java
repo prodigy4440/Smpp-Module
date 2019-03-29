@@ -164,15 +164,13 @@ public class Session {
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             submit.setShortMessage(textBytes);
-            Tlv tlv;
             if (messageType == 1) {
-                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, "ussd_service_op");
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             } else {
-                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
-            submit.setOptionalParameter(tlv);
-            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), "its_session_info"));
-//            submit.setServiceType("USSD");
+            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
+            submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
