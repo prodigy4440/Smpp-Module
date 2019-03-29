@@ -169,6 +169,7 @@ public class Session {
             } else {
                 tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
             }
+            submit.addOptionalParameter(new Tlv((short)1060, textBytes, "message_payload"));
             submit.setOptionalParameter(tlv);
             submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
@@ -176,28 +177,6 @@ public class Session {
                 | SmppTimeoutException | SmppChannelException ie) {
             MessageLogger.error(Session.class, "Error in SubmitSm", ie);
         }
-    }
-
-    public synchronized SmsStatus sendUssd(String sender, String message, String receiver) {
-        if (Objects.nonNull(smppSession)) {
-            try {
-                byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
-                SubmitSm submit = new SubmitSm();
-                submit.setSourceAddress(new Address((byte) 5, (byte) 9, sender));
-                submit.setDestAddress(new Address((byte) 1, (byte) 1, receiver));
-                submit.setShortMessage(textBytes);
-                SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
-                String messageId = submitSmResp.getMessageId();
-                SmsStatus smsStatus = new SmsStatus(true, messageId, "Success");
-                return smsStatus;
-            } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
-                    | SmppTimeoutException | SmppChannelException ie) {
-                return new SmsStatus(false, null, ie.getMessage());
-            }
-        } else {
-            return new SmsStatus(false, null, "Session not bound");
-        }
-
     }
 
     public boolean querySms() {
