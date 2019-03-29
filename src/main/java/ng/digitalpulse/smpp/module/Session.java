@@ -6,6 +6,7 @@
 package ng.digitalpulse.smpp.module;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
+import com.cloudhopper.commons.util.HexUtil;
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppBindType;
 import com.cloudhopper.smpp.SmppConstants;
@@ -171,7 +172,7 @@ public class Session {
             }
             submit.setOptionalParameter(tlv);
             submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, textBytes, "its_session_info"));
-            submit.setServiceType("USSD");
+//            submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
@@ -285,7 +286,7 @@ public class Session {
 
         public void onSms(String sender, String receiver, String message);
         
-        public void onUssd(String sender, String receiver, String message, Integer sessionId);
+        public void onUssd(String sender, String receiver, String message, String sessionInfo);
     }
 
     private class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
@@ -304,28 +305,25 @@ public class Session {
         public PduResponse firePduRequestReceived(PduRequest pduRequest) {
             PduResponse pduResponse = pduRequest.createResponse();
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
-                System.out.println("==============");
-                System.out.println((DataSm)pduRequest);
-                System.out.println("==============");
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
                 DeliverSm deliverSm = (DeliverSm) pduRequest;
                 String sender = deliverSm.getSourceAddress().getAddress();
                 String receiver = deliverSm.getDestAddress().getAddress();
                 String message = new String(deliverSm.getShortMessage());
+                String sessionInfo = "";
                 if (Objects.isNull(message) || message.isEmpty()) {
                     for (Tlv tlv : deliverSm.getOptionalParameters()) {
                         if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
                             message = new String(tlv.getValue());
                         }
                         if(tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO){
-                            String session_info = new String(tlv.getValue());
-                            System.out.println("Session-Info: "+session_info);
+                            sessionInfo = HexUtil.toHexString(tlv.getValue());
                         }
-                        System.out.println("Tag Name: "+tlv.getTagName()+", Tag Value: "+new String(tlv.getValue()));
                     }
                 }
                 if (Objects.nonNull(smsListener)) {
                     smsListener.onSms(sender, receiver, message);
+                    smsListener.onUssd(sender, receiver, message, sessionInfo);
                 }
             }
             return pduResponse;
@@ -337,4 +335,5 @@ public class Session {
         }
 
     }
+    
 }
