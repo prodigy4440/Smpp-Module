@@ -318,12 +318,20 @@ public class Session {
                         for (Tlv tlv : tlvs) {
                             if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
                                 message = new String(tlv.getValue());
-                            } else if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
-                                sessionInfo = HexUtil.toHexString(tlv.getValue());
                             }
                         }
                     }
                 }
+               
+                 ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
+                    if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
+                        for (Tlv tlv : tlvs) {
+                            if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
+                                sessionInfo = HexUtil.toHexString(tlv.getValue());
+                            }
+                        }
+                    }
+                
                 if (Objects.nonNull(smsListener)) {
                     smsListener.onSms(sender, receiver, message);
                     smsListener.onUssd(sender, receiver, message, sessionInfo);
