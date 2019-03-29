@@ -216,7 +216,7 @@ public class Session {
             config.setPort(port);
             config.setType(smppBindType);
             config.setSystemType(systemType);
-            config.setConnectTimeout(10000);
+            config.setConnectTimeout(20000);
             config.setRequestExpiryTimeout(30000);
             config.setWindowMonitorInterval(15000);
             config.setCountersEnabled(true);
