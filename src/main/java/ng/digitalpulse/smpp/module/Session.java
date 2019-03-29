@@ -14,7 +14,6 @@ import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.SmppSessionConfiguration;
 import com.cloudhopper.smpp.impl.DefaultSmppClient;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
-import com.cloudhopper.smpp.pdu.DataSm;
 import com.cloudhopper.smpp.pdu.DeliverSm;
 import com.cloudhopper.smpp.pdu.EnquireLink;
 import com.cloudhopper.smpp.pdu.PduRequest;
@@ -154,7 +153,7 @@ public class Session {
     }
 
     //    msgType continue is 1 and end is 2
-    public void sendUssd(String source, String destination, String message, int messageType) {
+    public void sendUssd(String source, String destination, String message, int messageType, String sessionInfo) {
         try {
 
             byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
@@ -171,7 +170,7 @@ public class Session {
                 tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
             }
             submit.setOptionalParameter(tlv);
-            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, textBytes, "its_session_info"));
+            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), "its_session_info"));
 //            submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
@@ -307,6 +306,7 @@ public class Session {
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
                 DeliverSm deliverSm = (DeliverSm) pduRequest;
+                System.out.println(deliverSm);
                 String sender = deliverSm.getSourceAddress().getAddress();
                 String receiver = deliverSm.getDestAddress().getAddress();
                 String message = new String(deliverSm.getShortMessage());
