@@ -13,6 +13,7 @@ import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.SmppSessionConfiguration;
 import com.cloudhopper.smpp.impl.DefaultSmppClient;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
+import com.cloudhopper.smpp.pdu.DataSm;
 import com.cloudhopper.smpp.pdu.DeliverSm;
 import com.cloudhopper.smpp.pdu.EnquireLink;
 import com.cloudhopper.smpp.pdu.PduRequest;
@@ -282,7 +283,9 @@ public class Session {
 
     public static interface SmsListener {
 
-        public void onMessage(String sender, String receiver, String message);
+        public void onSms(String sender, String receiver, String message);
+        
+        public void onUssd(String sender, String receiver, String message, Integer sessionId);
     }
 
     private class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
@@ -301,7 +304,9 @@ public class Session {
         public PduResponse firePduRequestReceived(PduRequest pduRequest) {
             PduResponse pduResponse = pduRequest.createResponse();
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
-
+                System.out.println("==============");
+                System.out.println((DataSm)pduRequest);
+                System.out.println("==============");
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
                 DeliverSm deliverSm = (DeliverSm) pduRequest;
                 String sender = deliverSm.getSourceAddress().getAddress();
@@ -320,7 +325,7 @@ public class Session {
                     }
                 }
                 if (Objects.nonNull(smsListener)) {
-                    smsListener.onMessage(sender, receiver, message);
+                    smsListener.onSms(sender, receiver, message);
                 }
             }
             return pduResponse;
