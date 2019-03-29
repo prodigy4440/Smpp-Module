@@ -27,6 +27,7 @@ import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -284,7 +285,7 @@ public class Session {
     public static interface SmsListener {
 
         public void onSms(String sender, String receiver, String message);
-        
+
         public void onUssd(String sender, String receiver, String message, String sessionInfo);
     }
 
@@ -312,12 +313,14 @@ public class Session {
                 String message = new String(deliverSm.getShortMessage());
                 String sessionInfo = "";
                 if (Objects.isNull(message) || message.isEmpty()) {
-                    for (Tlv tlv : deliverSm.getOptionalParameters()) {
-                        if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
-                            message = new String(tlv.getValue());
-                        }
-                        if(tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO){
-                            sessionInfo = HexUtil.toHexString(tlv.getValue());
+                    ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
+                    if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
+                        for (Tlv tlv : tlvs) {
+                            if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
+                                message = new String(tlv.getValue());
+                            } else if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
+                                sessionInfo = HexUtil.toHexString(tlv.getValue());
+                            }
                         }
                     }
                 }
@@ -335,5 +338,5 @@ public class Session {
         }
 
     }
-    
+
 }
