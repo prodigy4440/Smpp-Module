@@ -157,7 +157,7 @@ public class Session {
 
             byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
             SubmitSm submit = new SubmitSm();
-            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
 
             submit.setSourceAddress(new Address((byte) 0x03, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
@@ -169,6 +169,7 @@ public class Session {
                 tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
             }
             submit.setOptionalParameter(tlv);
+            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, textBytes, "its_session_info"));
             submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
@@ -310,6 +311,10 @@ public class Session {
                     for (Tlv tlv : deliverSm.getOptionalParameters()) {
                         if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
                             message = new String(tlv.getValue());
+                        }
+                        if(tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO){
+                            String session_info = new String(tlv.getValue());
+                            System.out.println("Session-Info: "+session_info);
                         }
                     }
                 }
