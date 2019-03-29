@@ -24,7 +24,6 @@ import com.cloudhopper.smpp.type.Address;
 import com.cloudhopper.smpp.type.LoggingOptions;
 import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
-import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
 import java.util.LinkedList;
@@ -169,7 +168,6 @@ public class Session {
             } else {
                 tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
             }
-            submit.addOptionalParameter(new Tlv((short)1060, textBytes, "message_payload"));
             submit.setOptionalParameter(tlv);
             submit.setServiceType("USSD");
             smppSession.sendRequestPdu(submit, 10000, false);
