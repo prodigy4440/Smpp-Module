@@ -316,6 +316,7 @@ public class Session {
                             String session_info = new String(tlv.getValue());
                             System.out.println("Session-Info: "+session_info);
                         }
+                        System.out.println("Tag Name: "+tlv.getTagName()+", Tag Value: "+new String(tlv.getValue()));
                     }
                 }
                 if (Objects.nonNull(smsListener)) {
