@@ -14,6 +14,7 @@ import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.SmppSessionConfiguration;
 import com.cloudhopper.smpp.impl.DefaultSmppClient;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
+import com.cloudhopper.smpp.pdu.DataSm;
 import com.cloudhopper.smpp.pdu.DeliverSm;
 import com.cloudhopper.smpp.pdu.EnquireLink;
 import com.cloudhopper.smpp.pdu.PduRequest;
@@ -161,7 +162,7 @@ public class Session {
             SubmitSm submit = new SubmitSm();
             submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
 
-            submit.setSourceAddress(new Address((byte) 0x03, (byte) 0x00, source));
+            submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             submit.setShortMessage(textBytes);
             if (messageType == 1) {
@@ -178,6 +179,32 @@ public class Session {
         }
     }
 
+        //    msgType continue is 1 and end is 2
+    public void sendDataSmUssd(String source, String destination, String message, int messageType, String sessionInfo) {
+        try {
+
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+            DataSm dataSm = new DataSm();
+            dataSm.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
+
+            dataSm.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
+            dataSm.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            dataSm.setShortMessage(textBytes);
+            if (messageType == 1) {
+                dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            } else {
+                dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            }
+            dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
+            dataSm.setServiceType("USSD");
+            smppSession.sendRequestPdu(dataSm, 10000, false);
+        } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
+                | SmppTimeoutException | SmppChannelException ie) {
+            MessageLogger.error(Session.class, "Error in SubmitSm", ie);
+        }
+    }
+
+    
     public boolean querySms() {
         return false;
     }
@@ -342,7 +369,11 @@ public class Session {
         public void fireExpectedPduResponseReceived(PduAsyncResponse pduAsyncResponse) {
             super.fireExpectedPduResponseReceived(pduAsyncResponse);
         }
+        
 
     }
 
+        public static void main(String[] args) {
+            System.out.println((byte)9);
+        }
 }
