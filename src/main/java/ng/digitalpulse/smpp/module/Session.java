@@ -174,7 +174,10 @@ public class Session {
             submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
             submit.setServiceType("USSD");
             SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
+            System.out.println("===========================================================");
+            System.out.println(submit);
             System.out.println(submitSmResp);
+            System.out.println("===========================================================");
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
             MessageLogger.error(Session.class, "Error in SubmitSm", ie);
