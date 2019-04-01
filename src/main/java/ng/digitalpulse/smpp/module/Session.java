@@ -7,6 +7,7 @@ package ng.digitalpulse.smpp.module;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
 import com.cloudhopper.commons.util.HexUtil;
+import com.cloudhopper.commons.util.windowing.WindowFuture;
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppBindType;
 import com.cloudhopper.smpp.SmppConstants;
@@ -189,6 +190,7 @@ public class Session {
 
             dataSm.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             dataSm.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            dataSm.setShortMessage(textBytes);
             if (messageType == 1) {
                 dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             } else {
@@ -199,6 +201,7 @@ public class Session {
            
             dataSm.setServiceType("USSD");
             smppSession.sendRequestPdu(dataSm, 10000, false);
+            
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
             MessageLogger.error(Session.class, "Error in SubmitSm", ie);
@@ -329,6 +332,7 @@ public class Session {
 
         @Override
         public PduResponse firePduRequestReceived(PduRequest pduRequest) {
+            System.out.println(pduRequest);
             PduResponse pduResponse = pduRequest.createResponse();
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
@@ -370,11 +374,5 @@ public class Session {
         public void fireExpectedPduResponseReceived(PduAsyncResponse pduAsyncResponse) {
             super.fireExpectedPduResponseReceived(pduAsyncResponse);
         }
-        
-
     }
-
-        public static void main(String[] args) {
-            System.out.println((byte)9);
-        }
 }
