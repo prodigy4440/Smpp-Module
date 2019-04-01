@@ -189,13 +189,14 @@ public class Session {
 
             dataSm.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             dataSm.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
-            dataSm.setShortMessage(textBytes);
             if (messageType == 1) {
                 dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             } else {
                 dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
             dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
+            dataSm.setOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD,textBytes , SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_MESSAGE_PAYLOAD)));
+           
             dataSm.setServiceType("USSD");
             smppSession.sendRequestPdu(dataSm, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
