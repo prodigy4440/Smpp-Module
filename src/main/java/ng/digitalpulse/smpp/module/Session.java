@@ -200,16 +200,16 @@ public class Session {
             
             byte esmcls = 0x18;
             byte dcs  = 0x0F;
-            submit.setDataCoding(dcs);
-            submit.setEsmClass(esmcls);
+            submit.setDataCoding((byte)0x0F);
+            submit.setEsmClass((byte)0x18);
             submit.setShortMessage(textBytes);
-            if (messageType == 1) {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
-            } else {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
-            }
-
+          
             submit.setOptionalParameter(itsTlv);
+            if (messageType == 1) {
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes()));
+            } else {
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes()));
+            }
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
@@ -380,11 +380,9 @@ public class Session {
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
                 DeliverSm deliverSm = (DeliverSm) pduRequest;
-                System.out.println(deliverSm);
                 String sender = deliverSm.getSourceAddress().getAddress();
                 String receiver = deliverSm.getDestAddress().getAddress();
                 String message = new String(deliverSm.getShortMessage());
-                String sessionInfo = "";
                 if (Objects.isNull(message) || message.isEmpty()) {
                     ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
                     if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
@@ -401,10 +399,7 @@ public class Session {
                     if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
                         for (Tlv tlv : tlvs) {
                             if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
-                                System.out.println("********ITS-SESSION-INFO**********");
-                                System.out.println(tlv);
                                 itsTlv = tlv;
-                                System.out.println("********ITS-SESSION-INFO**********");
                             }
                         }
                     }
