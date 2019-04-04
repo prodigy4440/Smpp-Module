@@ -156,7 +156,7 @@ public class Session {
     }
 
     //    msgType continue is 1 and end is 2
-    public void sendUssd(String source, String destination, String message, int messageType, String sessionInfo) {
+    public void sendUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
         try {
 
             byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
@@ -171,7 +171,7 @@ public class Session {
             } else {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
-//            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
+            submit.setOptionalParameter(itsTlv);
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
             SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
@@ -290,7 +290,7 @@ public class Session {
 
         public void onSms(String sender, String receiver, String message);
 
-        public void onUssd(String sender, String receiver, String message, String sessionInfo);
+        public void onUssd(String sender, String receiver, String message, Tlv itsTlv);
     }
 
     private class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
@@ -328,21 +328,22 @@ public class Session {
                     }
                 }
                
+                Tlv itsTlv = null;
                  ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
                     if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
                         for (Tlv tlv : tlvs) {
                             if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
                                 System.out.println("********ITS-SESSION-INFO**********");
                                 System.out.println(tlv);
+                                itsTlv = tlv;
                                 System.out.println("********ITS-SESSION-INFO**********");
-                                sessionInfo = HexUtil.toHexString(tlv.getValue());
                             }
                         }
                     }
                 
                 if (Objects.nonNull(smsListener)) {
                     smsListener.onSms(sender, receiver, message);
-                    smsListener.onUssd(sender, receiver, message, sessionInfo);
+                    smsListener.onUssd(sender, receiver, message, itsTlv);
                 }
             }
             return pduResponse;
