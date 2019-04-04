@@ -197,6 +197,11 @@ public class Session {
 
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            
+            byte esmcls = 0x18;
+            byte dcs  = 0x0F;
+            submit.setDataCoding(dcs);
+            submit.setEsmClass(esmcls);
             submit.setShortMessage(textBytes);
             if (messageType == 1) {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
