@@ -169,12 +169,11 @@ public class Session {
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             submit.setShortMessage(textBytes);
             if (messageType == 1) {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, "02".getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             } else {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, "11".getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
 
-//submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, "18".getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             submit.setOptionalParameter(itsTlv);
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
@@ -358,4 +357,5 @@ public class Session {
             super.fireExpectedPduResponseReceived(pduAsyncResponse);
         }
     }
+
 }

@@ -5,6 +5,7 @@
  */
 package ng.digitalpulse.smpp.module;
 
+import com.cloudhopper.commons.util.HexUtil;
 import com.cloudhopper.smpp.SmppBindType;
 import java.util.concurrent.TimeUnit;
 
@@ -16,14 +17,14 @@ public class SmppModule {
 
     //Test
     public static void main(String[] args) throws InterruptedException {
-        Session session = new Session("Bind tag","SystemId", "System Password",
-                SmppBindType.TRANSMITTER, "ip", 8080);
-        
-        TimeUnit.SECONDS.sleep(10);
-        session.bindSession();
-        System.out.println("Session Status: " + session.getBindStatus());
-        TimeUnit.SECONDS.sleep(10);
-        session.unBindSession();
+//        Session session = new Session("Bind tag","SystemId", "System Password",
+//                SmppBindType.TRANSMITTER, "ip", 8080);
+//        
+//        TimeUnit.SECONDS.sleep(10);
+//        session.bindSession();
+//        System.out.println("Session Status: " + session.getBindStatus());
+//        TimeUnit.SECONDS.sleep(10);
+//        session.unBindSession();
 //        MobileNetwork.Network phone = Telcoms.getInstance().getNetwork("08131631151");
 //        System.out.println(phone);
     }
