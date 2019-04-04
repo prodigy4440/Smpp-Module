@@ -332,6 +332,9 @@ public class Session {
                     if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
                         for (Tlv tlv : tlvs) {
                             if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
+                                System.out.println("********ITS-SESSION-INFO**********");
+                                System.out.println(tlv);
+                                System.out.println("********ITS-SESSION-INFO**********");
                                 sessionInfo = HexUtil.toHexString(tlv.getValue());
                             }
                         }
