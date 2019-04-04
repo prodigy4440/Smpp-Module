@@ -171,10 +171,10 @@ public class Session {
             } else {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
-            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
+//            submit.setOptionalParameter(new Tlv(SmppConstants.TAG_ITS_SESSION_INFO, HexUtil.toByteArray(sessionInfo), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_ITS_SESSION_INFO)));
             submit.setServiceType("USSD");
-            SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
             System.out.println("===========================================================");
+            SubmitSmResp submitSmResp = smppSession.submit(submit, 10000);
             System.out.println(submit);
             System.out.println(submitSmResp);
             System.out.println("===========================================================");
