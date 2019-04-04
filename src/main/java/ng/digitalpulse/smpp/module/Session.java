@@ -161,7 +161,7 @@ public class Session {
 
             byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
             SubmitSm submit = new SubmitSm();
-            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
+            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
 
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
