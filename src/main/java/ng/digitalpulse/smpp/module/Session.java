@@ -211,7 +211,7 @@ public class Session {
             } else {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}));
             }
-//            submit.setServiceType("USSD");
+            submit.setServiceType("USSD");
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
             System.out.println(submit);
