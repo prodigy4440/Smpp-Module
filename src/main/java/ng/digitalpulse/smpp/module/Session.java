@@ -188,6 +188,35 @@ public class Session {
     }
     
         //    msgType continue is 1 and end is 2
+    public void sendAsyncUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
+        try {
+
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+            SubmitSm submit = new SubmitSm();
+            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
+
+            submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
+            submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            submit.setShortMessage(textBytes);
+            if (messageType == 1) {
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            } else {
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            }
+
+            submit.setOptionalParameter(itsTlv);
+            submit.setServiceType("USSD");
+            System.out.println("===========================================================");
+            smppSession.sendRequestPdu(submit, 10000, false);
+            System.out.println(submit);
+            System.out.println("===========================================================");
+        } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
+                | SmppTimeoutException | SmppChannelException ie) {
+            MessageLogger.error(Session.class, "Error in SubmitSm", ie);
+        }
+    }
+    
+        //    msgType continue is 1 and end is 2
     public void sendDataUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
         try {
 
