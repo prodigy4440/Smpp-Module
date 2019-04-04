@@ -198,13 +198,14 @@ public class Session {
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             
-            byte esmcls = 0x18;
-            byte dcs  = 0x0F;
+//            byte esmcls = 0x18;
+//            byte dcs  = 0x0F;
             submit.setDataCoding((byte)0x0F);
             submit.setEsmClass((byte)0x18);
-            submit.setShortMessage(textBytes);
+//            submit.setShortMessage(textBytes);
+            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
-            submit.setOptionalParameter(itsTlv);
+            submit.addOptionalParameter(itsTlv);
             if (messageType == 1) {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}));
             } else {
