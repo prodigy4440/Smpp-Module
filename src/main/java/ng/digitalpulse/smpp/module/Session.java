@@ -187,6 +187,37 @@ public class Session {
         }
     }
     
+        //    msgType continue is 1 and end is 2
+    public void sendDataUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
+        try {
+
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+            DataSm dataSm = new DataSm();
+            dataSm.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+
+            dataSm.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
+            dataSm.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+            if (messageType == 1) {
+                dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            } else {
+                dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+            }
+
+            dataSm.addOptionalParameter(itsTlv);
+            dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_MESSAGE_PAYLOAD)));
+            dataSm.setServiceType("USSD");
+            System.out.println("===========================================================");
+            smppSession.sendRequestPdu(dataSm, 10000, true);
+            System.out.println(dataSm);
+            System.out.println("===========================================================");
+        } catch (RecoverablePduException | SmppTimeoutException | SmppChannelException ie) {
+            MessageLogger.error(Session.class, "Error in SubmitSm", ie);
+        } catch (UnrecoverablePduException | InterruptedException ex) {
+            Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
     public boolean querySms() {
         return false;
     }
