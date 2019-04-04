@@ -206,9 +206,9 @@ public class Session {
           
             submit.setOptionalParameter(itsTlv);
             if (messageType == 1) {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes()));
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}));
             } else {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes()));
+                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}));
             }
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
@@ -375,7 +375,9 @@ public class Session {
 
         @Override
         public PduResponse firePduRequestReceived(PduRequest pduRequest) {
+            System.out.println("===========================**============================");
             System.out.println(pduRequest);
+            System.out.println("===========================**============================");
             PduResponse pduResponse = pduRequest.createResponse();
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
