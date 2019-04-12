@@ -202,7 +202,7 @@ public class Session {
 //            byte esmcls = 0x18;
 //            byte dcs  = 0x0F;
             submit.setDataCoding((byte)0x0F);
-            submit.setEsmClass((byte)0x18);
+            submit.setEsmClass((byte)0x00);
             submit.setShortMessage(textBytes);
 //            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
