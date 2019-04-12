@@ -14,7 +14,6 @@ import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.SmppSessionConfiguration;
 import com.cloudhopper.smpp.impl.DefaultSmppClient;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
-import com.cloudhopper.smpp.pdu.DataSm;
 import com.cloudhopper.smpp.pdu.DeliverSm;
 import com.cloudhopper.smpp.pdu.EnquireLink;
 import com.cloudhopper.smpp.pdu.PduRequest;
@@ -235,7 +234,7 @@ public class Session {
            
             }
                
-            submit.setServiceType("USSD");
+            submit.setServiceType(null);
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
             System.out.println(submit);
