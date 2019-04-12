@@ -174,6 +174,7 @@ public class Session {
                 submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
             }
 
+            
             submit.setOptionalParameter(itsTlv);
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
