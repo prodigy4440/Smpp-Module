@@ -7,13 +7,11 @@ package ng.digitalpulse.smpp.module;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
 import com.cloudhopper.commons.util.HexUtil;
-import com.cloudhopper.commons.util.windowing.WindowFuture;
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppBindType;
 import com.cloudhopper.smpp.SmppConstants;
 import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.SmppSessionConfiguration;
-import com.cloudhopper.smpp.channel.SmppChannelConstants;
 import com.cloudhopper.smpp.impl.DefaultSmppClient;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
 import com.cloudhopper.smpp.pdu.DataSm;
@@ -30,7 +28,6 @@ import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
-import com.cloudhopper.smpp.util.TlvUtil;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ng.digitalpulse.smpp.module.domain.SmsStatus;
 import ng.digitalpulse.smpp.module.util.MessageLogger;
+import ng.digitalpulse.smpp.module.util.UssdServiceOp;
 
 /**
  *
@@ -189,7 +187,7 @@ public class Session {
     }
     
         //    msgType continue is 1 and end is 2
-    public void sendAsyncUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
+    public void sendAsyncUssd(String source, String destination, String message, UssdServiceOp ussdServiceOp, Tlv itsTlv) {
         try {
 
             byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
@@ -207,11 +205,36 @@ public class Session {
 //            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
             submit.addOptionalParameter(itsTlv);
-            if (messageType == 1) {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}));
-            } else {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}));
+            switch(ussdServiceOp){
+                case PSSD_IND:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
+                    break;
+                case PSSR_IND:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSR_IND.getValue()));
+                    break;
+                case USSR_REQ:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSR_REQ.getValue()));
+                    break;
+                case USSN_REQ:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSN_REQ.getValue()));
+                    break;
+                case PSSD_RES:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_RES.getValue()));
+                    break;
+                case PSSR_RES:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSR_RES.getValue()));
+                    break;
+                case USSR_CNF:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSR_CNF.getValue()));
+                    break;
+                case USSN_CNF:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSN_CNF.getValue()));
+                    break;
+                default:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
+           
             }
+               
             submit.setServiceType("USSD");
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
@@ -222,37 +245,6 @@ public class Session {
             MessageLogger.error(Session.class, "Error in SubmitSm", ie);
         }
     }
-    
-        //    msgType continue is 1 and end is 2
-    public void sendDataUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
-        try {
-
-            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
-            DataSm dataSm = new DataSm();
-            dataSm.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
-
-            dataSm.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
-            dataSm.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
-            if (messageType == 1) {
-                dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(2).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
-            } else {
-                dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, HexUtil.toHexString(11).getBytes(), SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
-            }
-
-            dataSm.addOptionalParameter(itsTlv);
-            dataSm.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes, SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_MESSAGE_PAYLOAD)));
-            dataSm.setServiceType("USSD");
-            System.out.println("===========================================================");
-            smppSession.sendRequestPdu(dataSm, 10000, true);
-            System.out.println(dataSm);
-            System.out.println("===========================================================");
-        } catch (RecoverablePduException | SmppTimeoutException | SmppChannelException ie) {
-            MessageLogger.error(Session.class, "Error in SubmitSm", ie);
-        } catch (UnrecoverablePduException | InterruptedException ex) {
-            Logger.getLogger(Session.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
     
     public boolean querySms() {
         return false;
