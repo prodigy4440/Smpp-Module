@@ -203,7 +203,7 @@ public class Session {
             submit.setShortMessage(textBytes);
 //            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
-            submit.addOptionalParameter(itsTlv);
+//            submit.addOptionalParameter(itsTlv);
             switch(ussdServiceOp){
                 case PSSD_IND:
                     submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
