@@ -205,7 +205,6 @@ public class Session {
             submit.setShortMessage(textBytes);
 //            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
-//            submit.addOptionalParameter(itsTlv);
             switch(ussdServiceOp){
                 case PSSD_IND:
                     submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
@@ -236,6 +235,7 @@ public class Session {
            
             }
                
+            submit.addOptionalParameter(itsTlv);
             submit.setServiceType(null);
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
