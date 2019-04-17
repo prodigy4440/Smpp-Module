@@ -33,6 +33,10 @@ public class SmppModule {
 //        System.out.println(phone);
         byte[] message = CharsetUtil.encode("Sample | message", CharsetUtil.CHARSET_UTF_8);
         System.out.println(new String(message));
+        System.out.println(CharsetUtil.decode(message, CharsetUtil.CHARSET_GSM));
+        System.out.println(CharsetUtil.decode(message, CharsetUtil.CHARSET_GSM7));
+        System.out.println(CharsetUtil.decode(message, CharsetUtil.CHARSET_UTF_8));
+        System.out.println(new String(message));
     }
 
 }

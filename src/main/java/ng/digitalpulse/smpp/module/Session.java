@@ -233,7 +233,7 @@ public class Session {
            
             }
                
-            submit.addOptionalParameter(itsTlv);
+//            submit.addOptionalParameter(itsTlv);
             submit.setServiceType(null);
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
