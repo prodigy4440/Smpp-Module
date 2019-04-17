@@ -202,8 +202,8 @@ public class Session {
 //            byte dcs  = 0x0F;
             submit.setDataCoding((byte)0x0F);
             submit.setEsmClass((byte)0x00);
-//            submit.setShortMessage(textBytes);
-            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
+            submit.setShortMessage(textBytes);
+//            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
           
             switch(ussdServiceOp){
                 case PSSD_IND:
