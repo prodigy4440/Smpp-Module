@@ -194,8 +194,6 @@ public class Session {
             submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
 
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
-//            submit.setSourceAddress(new Address((byte) 0x03, (byte) 0x00, source));
-//            submit.setDestAddress(new Address((byte) 0x00, (byte) 0x01, destination));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             
 //            byte esmcls = 0x18;
@@ -240,6 +238,9 @@ public class Session {
             System.out.println("===========================================================");
             smppSession.sendRequestPdu(submit, 10000, false);
             System.out.println(submit);
+            
+            System.out.println("Message Body: "+new String(submit.getShortMessage()));
+            
             System.out.println("===========================================================");
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
