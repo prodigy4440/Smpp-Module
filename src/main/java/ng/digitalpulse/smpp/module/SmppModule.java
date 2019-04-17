@@ -5,9 +5,11 @@
  */
 package ng.digitalpulse.smpp.module;
 
+import com.cloudhopper.commons.charset.CharsetUtil;
 import com.cloudhopper.commons.util.HexUtil;
 import com.cloudhopper.smpp.SmppBindType;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -29,8 +31,8 @@ public class SmppModule {
 //        session.unBindSession();
 //        MobileNetwork.Network phone = Telcoms.getInstance().getNetwork("08131631151");
 //        System.out.println(phone);
-byte[] arr = new byte[]{0x02};
-System.out.println(Arrays.toString(arr));
+        byte[] message = CharsetUtil.encode("Sample | message", CharsetUtil.CHARSET_UTF_8);
+        System.out.println(new String(message));
     }
 
 }

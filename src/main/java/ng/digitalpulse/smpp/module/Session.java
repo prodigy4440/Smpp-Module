@@ -158,7 +158,7 @@ public class Session {
     public void sendUssd(String source, String destination, String message, int messageType, Tlv itsTlv) {
         try {
 
-            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM7);
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
             SubmitSm submit = new SubmitSm();
             submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
 
@@ -189,7 +189,7 @@ public class Session {
     public void sendAsyncUssd(String source, String destination, String message, UssdServiceOp ussdServiceOp, Tlv itsTlv) {
         try {
 
-            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_UTF_8);
             SubmitSm submit = new SubmitSm();
             submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
 
