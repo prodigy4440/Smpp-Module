@@ -74,6 +74,7 @@ public class Session {
         this.bindService = new BindService(config.getTag(), config.getSystemId(), 
                 config.getPassword(), config.getSystemType(), SmppBindType.TRANSMITTER, 
                 config.getHost(), config.getPort());
+        this.enquireLinkService = new EnquireLinkService();
         this.SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
     }
 
