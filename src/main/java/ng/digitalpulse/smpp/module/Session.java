@@ -379,6 +379,7 @@ public class Session {
         @Override
         public PduResponse firePduRequestReceived(PduRequest pduRequest) {
             PduResponse pduResponse = pduRequest.createResponse();
+            logger.info("New PDU: {}", pduRequest);
             if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
             } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
                 DeliverSm deliverSm = (DeliverSm) pduRequest;
