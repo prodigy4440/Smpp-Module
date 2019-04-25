@@ -72,7 +72,7 @@ public class Session {
         this.autoRebind = config.getAutoRebind();
         this.reBindTimeInMinutes = config.getRebindTime();
         this.bindService = new BindService(config.getTag(), config.getSystemId(), 
-                config.getPassword(), config.getSystemType(), SmppBindType.TRANSMITTER, 
+                config.getPassword(), config.getSystemType(), config.getSmppBindType(), 
                 config.getHost(), config.getPort());
         this.enquireLinkService = new EnquireLinkService();
         this.SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
