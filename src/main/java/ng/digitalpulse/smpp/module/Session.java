@@ -409,7 +409,6 @@ public class Session {
 
                 if (Objects.nonNull(smsListener)) {
                     smsListener.onSms(sender, receiver, message);
-
                     if (Objects.nonNull(itsTlv)) {
                         try {
                             smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
