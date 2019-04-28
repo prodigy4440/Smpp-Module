@@ -71,8 +71,8 @@ public class Session {
         this.TAG = config.getTag();
         this.autoRebind = config.getAutoRebind();
         this.reBindTimeInMinutes = config.getRebindTime();
-        this.bindService = new BindService(config.getTag(), config.getSystemId(), 
-                config.getPassword(), config.getSystemType(), config.getSmppBindType(), 
+        this.bindService = new BindService(config.getTag(), config.getSystemId(),
+                config.getPassword(), config.getSystemType(), config.getSmppBindType(),
                 config.getHost(), config.getPort());
         this.enquireLinkService = new EnquireLinkService();
         this.SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
@@ -409,11 +409,15 @@ public class Session {
 
                 if (Objects.nonNull(smsListener)) {
                     smsListener.onSms(sender, receiver, message);
-                    try {
-                        smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
-                    } catch (TlvConvertException ex) {
-                        logger.error("Fetching tlvParameter info", ex);
+
+                    if (Objects.nonNull(itsTlv)) {
+                        try {
+                            smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
+                        } catch (TlvConvertException ex) {
+                            logger.error("Fetching tlvParameter info", ex);
+                        }
                     }
+
                 }
             }
             return pduResponse;
