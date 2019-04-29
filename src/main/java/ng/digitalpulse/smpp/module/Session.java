@@ -28,6 +28,8 @@ import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -426,6 +428,24 @@ public class Session {
         public void fireExpectedPduResponseReceived(PduAsyncResponse pduAsyncResponse) {
             super.fireExpectedPduResponseReceived(pduAsyncResponse);
         }
+
+        @Override
+        public void fireUnknownThrowable(Throwable t) {
+            if(t instanceof ClosedChannelException){
+                bindSession();
+            }else if(t instanceof IOException){
+                logger.error("fireUnknownThrowable {}", t);
+            }else{
+                logger.error("fireUnknownThrowable {}", t);
+            }
+        }
+
+        @Override
+        public void fireChannelUnexpectedlyClosed() {
+            bindSession();
+        }
+        
+        
     }
 
 }
