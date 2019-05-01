@@ -295,8 +295,8 @@ public class Session {
             config.setPort(port);
             config.setType(smppBindType);
             config.setSystemType(systemType);
-            config.setConnectTimeout(30000);
-            config.setRequestExpiryTimeout(30000);
+            config.setConnectTimeout(45000);
+            config.setRequestExpiryTimeout(45000);
             config.setWindowMonitorInterval(15000);
             config.setCountersEnabled(true);
 
@@ -415,7 +415,7 @@ public class Session {
                         try {
                             smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
                         } catch (TlvConvertException ex) {
-                            logger.error("Fetching tlvParameter info", ex);
+                            logger.error("Error fetching tlvParameter info", ex);
                         }
                     }
 
