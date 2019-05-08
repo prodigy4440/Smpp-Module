@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -61,7 +62,8 @@ public class Session {
 
     private final List<ScheduledFuture<?>> WORKER = new LinkedList<>();
 
-    private ScheduledExecutorService SCHEDULEDEXECUTORSERVICE;
+    private ScheduledExecutorService SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ExecutorService EXECUTORSERVICE = Executors.newSingleThreadExecutor();
 
     private String TAG = "";
 
@@ -77,7 +79,6 @@ public class Session {
                 config.getPassword(), config.getSystemType(), config.getSmppBindType(),
                 config.getHost(), config.getPort());
         this.enquireLinkService = new EnquireLinkService();
-        this.SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
     }
 
     public Session(String tag, String systemId, String password, SmppBindType smppBindType,
@@ -96,7 +97,6 @@ public class Session {
         this.reBindTimeInMinutes = reBindTimeInMinutes;
         this.bindService = new BindService(name, systemId, password, systemType, smppBindType, host, port);
         this.enquireLinkService = new EnquireLinkService();
-        this.SCHEDULEDEXECUTORSERVICE = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void setSmsReceiver(SmsListener smsListener) {
@@ -105,9 +105,9 @@ public class Session {
 
     public void bindSession() {
         if (Objects.nonNull(bindService)) {
-            SCHEDULEDEXECUTORSERVICE.execute(() -> {
-                bindService.bind();
-            });
+//            SCHEDULEDEXECUTORSERVICE.execute(() -> {
+//                bindService.bind();
+//            });
             ScheduledFuture<?> enquireLinScheduledFuture = SCHEDULEDEXECUTORSERVICE
                     .scheduleAtFixedRate(enquireLinkService, 5, 5, TimeUnit.SECONDS);
             WORKER.add(enquireLinScheduledFuture);
@@ -117,6 +117,10 @@ public class Session {
                     bindService.bind();
                 }, 2, reBindTimeInMinutes, TimeUnit.MINUTES);
                 WORKER.add(reBindScheduledFuture);
+            }else{
+               EXECUTORSERVICE.execute(() -> {
+                    bindService.bind();
+               });
             }
         }
     }
@@ -288,22 +292,22 @@ public class Session {
 
         public BindService(String name, String systemId, String password, String systemType,
                 SmppBindType smppBindType, String host, Integer port) {
-            config = new SmppSessionConfiguration(smppBindType, systemId, password);
-            config.setWindowSize(20);
-            config.setName(name);
-            config.setHost(host);
-            config.setPort(port);
-            config.setType(smppBindType);
-            config.setSystemType(systemType);
-            config.setConnectTimeout(45000);
-            config.setRequestExpiryTimeout(45000);
-            config.setWindowMonitorInterval(15000);
-            config.setCountersEnabled(true);
+            this.config = new SmppSessionConfiguration(smppBindType, systemId, password);
+            this.config.setWindowSize(20);
+            this.config.setName(name);
+            this.config.setHost(host);
+            this.config.setPort(port);
+            this.config.setType(smppBindType);
+            this.config.setSystemType(systemType);
+            this.config.setConnectTimeout(45000);
+            this.config.setRequestExpiryTimeout(45000);
+            this.config.setWindowMonitorInterval(15000);
+            this.config.setCountersEnabled(true);
 
             LoggingOptions loggingOptions = new LoggingOptions();
             loggingOptions.setLogPdu(false);
             loggingOptions.setLogBytes(false);
-            config.setLoggingOptions(loggingOptions);
+            this.config.setLoggingOptions(loggingOptions);
         }
 
         public void bind() {
@@ -311,10 +315,10 @@ public class Session {
             if (Objects.nonNull(smppSession)) {
                 unbind();
             }
-            smppClient = new DefaultSmppClient();
+            this.smppClient = new DefaultSmppClient();
             try {
                 DefaultSmppSessionHandler handler = new ClientSmppSessionHandler();
-                smppSession = smppClient.bind(config, handler);
+                smppSession = this.smppClient.bind(this.config, handler);
                 System.out.println("Bind Done For " + TAG + " ");
                 System.out.println("Session Info, Name: "
                         + TAG + ", Bind Type: " + smppSession.getBindType()
