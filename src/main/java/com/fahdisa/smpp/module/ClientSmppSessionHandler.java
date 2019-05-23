@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ng.digitalpulse.smpp.module;
+package com.fahdisa.smpp.module;
 
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppConstants;
@@ -112,7 +112,7 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
             if(Objects.nonNull(bindService)){
                 bindService.bind();
             }
-//            bindSession();
+            bindService.bind();
         } else if (t instanceof IOException) {
             logger.error("fireUnknownThrowable {}", t);
         } else {
@@ -125,7 +125,7 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
         if(Objects.nonNull(bindService)){
                 bindService.bind();
         }
-//        bindSession();
+        bindService.bind();
     }
 
 }

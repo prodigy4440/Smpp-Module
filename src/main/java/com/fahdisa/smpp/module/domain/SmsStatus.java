@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ng.digitalpulse.smpp.module.domain;
+package com.fahdisa.smpp.module.domain;
 
 import java.io.Serializable;
 import java.util.Objects;

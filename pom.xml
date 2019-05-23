@@ -62,7 +62,7 @@
                     <!-- ... -->
                     <archive>
                         <manifest>
-                            <mainClass>ng.digitalpulse.smpp.module.SmppModule</mainClass>
+                            <mainClass>com.fahdisa.smpp.module.SmppModule</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -78,7 +78,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>ng.digitalpulse.smpp.module.SmppModule</mainClass>
+                            <mainClass>com.fahdisa.smpp.module.SmppModule</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

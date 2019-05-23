@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ng.digitalpulse.smpp.module;
+package com.fahdisa.smpp.module;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
 import com.cloudhopper.commons.util.HexUtil;
@@ -23,9 +23,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import ng.digitalpulse.smpp.module.domain.SmsStatus;
-import ng.digitalpulse.smpp.module.util.ConnectionConfig;
-import ng.digitalpulse.smpp.module.util.UssdServiceOp;
+import com.fahdisa.smpp.module.domain.SmsStatus;
+import com.fahdisa.smpp.module.util.ConnectionConfig;
+import com.fahdisa.smpp.module.util.UssdServiceOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,186 +267,5 @@ public class Session {
             bindService.unbind();
         }
     }
-//
-//    private class BindService {
-//
-//        private final SmppSessionConfiguration config;
-//        private DefaultSmppClient smppClient;
-//        private ScheduledFuture<?> scheduledFuture;
-//       
-//
-//        public BindService(String name, String systemId, String password, String systemType,
-//                SmppBindType smppBindType, String host, Integer port) {
-//            this.config = new SmppSessionConfiguration(smppBindType, systemId, password);
-//            this.config.setWindowSize(20);
-//            this.config.setName(name);
-//            this.config.setHost(host);
-//            this.config.setPort(port);
-//            this.config.setType(smppBindType);
-//            this.config.setSystemType(systemType);
-//            this.config.setConnectTimeout(45000);
-//            this.config.setRequestExpiryTimeout(45000);
-//            this.config.setWindowMonitorInterval(15000);
-//            this.config.setCountersEnabled(true);
-//
-//            LoggingOptions loggingOptions = new LoggingOptions();
-//            loggingOptions.setLogPdu(false);
-//            loggingOptions.setLogBytes(false);
-//            this.config.setLoggingOptions(loggingOptions);
-//        }
-//
-//        public void bind() {
-//            logger.info("****** Entering Session Bind For {}  ******", TAG);
-//            if (Objects.nonNull(smppSession)) {
-//                unbind();
-//            }
-//            this.smppClient = new DefaultSmppClient();
-//            try {
-//                DefaultSmppSessionHandler handler = new ClientSmppSessionHandler();
-//                smppSession = this.smppClient.bind(this.config, handler);
-//                System.out.println("Bind Done For " + TAG + " ");
-//                System.out.println("Session Info, Name: "
-//                        + TAG + ", Bind Type: " + smppSession.getBindType()
-//                        + ", IsOpen: " + smppSession.isOpen() + ", IsBound: " + smppSession.isBound());
-//                scheduledFuture = SCHEDULEDEXECUTORSERVICE.scheduleAtFixedRate(new EnquireLinkService(), 0, 1, TimeUnit.SECONDS);
-//            } catch (SmppTimeoutException | SmppChannelException
-//                    | UnrecoverablePduException
-//                    | InterruptedException ex) {
-//                logger.error("Bind Error {}", ex);
-//            }
-//            logger.info("****** Exiting Session Bind For {} ******", TAG);
-//        }
-//
-//        public void unbind() {
-//            if (Objects.nonNull(smppSession) && smppSession.isBound()) {
-//                smppSession.unbind(5000);
-//            }
-//            if (Objects.nonNull(smppClient)) {
-//                smppClient.destroy();
-//            }
-//            if (Objects.nonNull(scheduledFuture)) {
-//                scheduledFuture.cancel(true);
-//            }
-//        }
-//
-//    }
-//
-//    private class EnquireLinkService implements Runnable {
-//        
-//        private final Logger logger;
-//        
-//        private final SmppSession smppSession;
-//        
-//        public EnquireLinkService(SmppSession smppSession){
-//            this.smppSession = smppSession;
-//            this.logger = LoggerFactory.getLogger(EnquireLinkService.class);
-//        }
-//        
-//        public EnquireLinkService(SmppSession smppSession, Logger logger){
-//            this.smppSession = smppSession;
-//            this.logger = logger;
-//        }
-//               
-//        @Override
-//        public void run() {
-//            if ((this.smppSession != null) && this.smppSession.isBound()) {
-//                try {
-//                    this.smppSession.enquireLink(new EnquireLink(), 10000L);
-//                } catch (RecoverablePduException | UnrecoverablePduException
-//                        | SmppTimeoutException | SmppChannelException
-//                        | InterruptedException ex) {
-//                    this.logger.error("Send Enquire Link Error {}", ex);
-//                }
-//            }
-//        }
-//
-//    }
 
-//    public static interface SmsListener {
-//
-//        public void onSms(String sender, String receiver, String message);
-//
-//        public void onUssd(String sender, String receiver, String message, String meta);
-//    }
-//    public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
-//
-//        @Override
-//        public void firePduRequestExpired(PduRequest pduRequest) {
-//            super.firePduRequestExpired(pduRequest);
-//        }
-//
-//        @Override
-//        public void fireRecoverablePduException(RecoverablePduException e) {
-//            super.fireRecoverablePduException(e);
-//        }
-//
-//        @Override
-//        public PduResponse firePduRequestReceived(PduRequest pduRequest) {
-//            PduResponse pduResponse = pduRequest.createResponse();
-//            logger.info("New PDU: {}", pduRequest);
-//            if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
-//            } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
-//                DeliverSm deliverSm = (DeliverSm) pduRequest;
-//                String sender = deliverSm.getSourceAddress().getAddress();
-//                String receiver = deliverSm.getDestAddress().getAddress();
-//                String message = new String(deliverSm.getShortMessage());
-//                if (Objects.isNull(message) || message.isEmpty()) {
-//                    ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
-//                    if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
-//                        for (Tlv tlv : tlvs) {
-//                            if (tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD) {
-//                                message = new String(tlv.getValue());
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                Tlv itsTlv = null;
-//                ArrayList<Tlv> tlvs = deliverSm.getOptionalParameters();
-//                if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
-//                    for (Tlv tlv : tlvs) {
-//                        if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
-//                            itsTlv = tlv;
-//                        }
-//                    }
-//                }
-//
-//                if (Objects.nonNull(smsListener)) {
-//                    smsListener.onSms(sender, receiver, message);
-//                    if (Objects.nonNull(itsTlv)) {
-//                        try {
-//                            smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
-//                        } catch (TlvConvertException ex) {
-//                            logger.error("Error fetching tlvParameter info", ex);
-//                        }
-//                    }
-//
-//                }
-//            }
-//            return pduResponse;
-//        }
-//
-//        @Override
-//        public void fireExpectedPduResponseReceived(PduAsyncResponse pduAsyncResponse) {
-//            super.fireExpectedPduResponseReceived(pduAsyncResponse);
-//        }
-//
-//        @Override
-//        public void fireUnknownThrowable(Throwable t) {
-//            if(t instanceof ClosedChannelException){
-//                bindSession();
-//            }else if(t instanceof IOException){
-//                logger.error("fireUnknownThrowable {}", t);
-//            }else{
-//                logger.error("fireUnknownThrowable {}", t);
-//            }
-//        }
-//
-//        @Override
-//        public void fireChannelUnexpectedlyClosed() {
-//            bindSession();
-//        }
-//        
-//        
-//    }
 }
