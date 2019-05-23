@@ -50,11 +50,17 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
     @Override
     public void firePduRequestExpired(PduRequest pduRequest) {
         super.firePduRequestExpired(pduRequest);
+        if(bindService.getSmppSession().isClosed()){
+            bindService.bind();
+        }
     }
 
     @Override
     public void fireRecoverablePduException(RecoverablePduException e) {
         super.fireRecoverablePduException(e);
+        if(bindService.getSmppSession().isClosed()){
+            bindService.bind();
+        }
     }
 
     @Override
@@ -96,6 +102,8 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
                     } catch (TlvConvertException ex) {
                         logger.error("Error fetching tlvParameter info", ex);
                     }
+                }else{
+                    smsListener.onUssd(sender, receiver, message, "");
                 }
 
             }
@@ -117,17 +125,25 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
             bindService.bind();
         } else if (t instanceof IOException) {
             logger.error("fireUnknownThrowable {}", t);
+            if(bindService.getSmppSession().isClosed()){
+                bindService.bind();
+            }
         } else {
             logger.error("fireUnknownThrowable {}", t);
+            if(bindService.getSmppSession().isClosed()){
+                bindService.bind();
+            }
         }
+
     }
 
     @Override
     public void fireChannelUnexpectedlyClosed() {
         if(Objects.nonNull(bindService)){
                 bindService.bind();
+        }else{
+            logger.error("Bind Service is NULL");
         }
-        bindService.bind();
     }
 
 }
