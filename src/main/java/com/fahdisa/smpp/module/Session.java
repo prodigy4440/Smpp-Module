@@ -16,16 +16,19 @@ import com.cloudhopper.smpp.type.RecoverablePduException;
 import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+
+import com.fahdisa.smpp.module.connection.BindService;
 import com.fahdisa.smpp.module.domain.SmsStatus;
-import com.fahdisa.smpp.module.util.ConnectionConfig;
-import com.fahdisa.smpp.module.util.UssdServiceOp;
+import com.fahdisa.smpp.module.config.ConnectionConfig;
+import com.fahdisa.smpp.module.handler.SmsListener;
+import com.fahdisa.smpp.module.ussd.UssdServiceOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +40,6 @@ public class Session {
 
     private final Logger logger = LoggerFactory.getLogger(Session.class);
 
-//    private SmppSession smppSession;
     private final BindService bindService;
 
     private final List<ScheduledFuture<?>> WORKER = new LinkedList<>();
@@ -48,6 +50,8 @@ public class Session {
 
     private final Integer nextRebind;
 
+    private final Map<String, Object> metaData = new HashMap<>();
+
     public Session(ConnectionConfig config) {
         this.rebind = config.getAutoRebind();
         this.nextRebind = config.getRebindTime();
@@ -56,21 +60,6 @@ public class Session {
                 config.getHost(), config.getPort());
     }
 
-//    public Session(String tag, String systemId, String password, SmppBindType smppBindType,
-//            String host, Integer port, Boolean autoReBind, Integer rebindTime) {
-//        this(tag, systemId, systemId, password, systemId, smppBindType, host, port);
-//    }
-//    public Session(String tag, String name, String systemId, String password, String systemType,
-//            SmppBindType smppBindType, String host, Integer port) {
-//        this(tag, name, systemId, password, systemType, smppBindType, host, port, 5);
-//    }
-//    public Session(String tag, String name, String systemId, String password, String systemType,
-//            SmppBindType smppBindType, String host, Integer port, Integer reBindTimeInMinutes) {
-//        this.TAG = tag;
-//        this.reBindTimeInMinutes = reBindTimeInMinutes;
-//        this.bindService = new BindService(name, systemId, password, systemType, smppBindType, host, port);
-//        this.enquireLinkService = new EnquireLinkService();
-//    }
     public void setSmsReceiver(SmsListener smsListener) {
         if (Objects.nonNull(bindService)) {
             bindService.setSmsListener(smsListener);
@@ -90,23 +79,6 @@ public class Session {
             }
         }
 
-//        if (Objects.nonNull(bindService)) {
-////            SCHEDULEDEXECUTORSERVICE.execute(() -> {
-////                bindService.bind();
-////            });
-//            if (autoRebind) {
-//                ScheduledFuture<?> reBindScheduledFuture = SCHEDULEDEXECUTORSERVICE.scheduleAtFixedRate(() -> {
-//                    bindService.bind();
-//                }, 2, reBindTimeInMinutes, TimeUnit.MINUTES);
-//                WORKER.add(reBindScheduledFuture);
-//            } else {
-//                EXECUTORSERVICE.execute(() -> {
-//                    bindService.bind();
-//                });
-//            }
-//            ScheduledFuture<?> enquireLinScheduledFuture = SCHEDULEDEXECUTORSERVICE
-//                    .scheduleAtFixedRate(enquireLinkService, 5, 5, TimeUnit.SECONDS);
-//            WORKER.add(enquireLinScheduledFuture);
     }
 
     public synchronized SmsStatus sendSms(String sender, String message, String receiver) {
@@ -266,6 +238,29 @@ public class Session {
         if (Objects.nonNull(bindService)) {
             bindService.unbind();
         }
+    }
+
+    public void setMetaData(Map<String, Object> meta){
+        if(Objects.nonNull(meta)){
+            meta.forEach(new BiConsumer<String, Object>() {
+                @Override
+                public void accept(String s, Object o) {
+                    metaData.put(s, o);
+                }
+            });
+        }
+    }
+
+    public void addMetaData(String key, Object value){
+        this.metaData.put(key, value);
+    }
+
+    public Map<String, Object> getMetaData(){
+        return this.metaData;
+    }
+
+    public Object getMetaData(String key){
+        return this.metaData.get(key);
     }
 
 }

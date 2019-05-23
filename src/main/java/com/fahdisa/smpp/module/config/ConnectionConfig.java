@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.fahdisa.smpp.module.util;
+package com.fahdisa.smpp.module.config;
 
 import com.cloudhopper.smpp.SmppBindType;
 import java.util.Objects;

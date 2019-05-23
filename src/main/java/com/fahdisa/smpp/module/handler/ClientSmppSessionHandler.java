@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.fahdisa.smpp.module;
+package com.fahdisa.smpp.module.handler;
 
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppConstants;
@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Objects;
+
+import com.fahdisa.smpp.module.connection.BindService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

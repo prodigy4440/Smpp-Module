@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.fahdisa.smpp.module;
+package com.fahdisa.smpp.module.connection;
 
 import com.cloudhopper.smpp.SmppSession;
 import com.cloudhopper.smpp.pdu.EnquireLink;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class EnquireLinkService implements Runnable {
 
     private final Logger logger;
+
 
     private final SmppSession smppSession;
 

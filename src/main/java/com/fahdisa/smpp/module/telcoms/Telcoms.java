@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.fahdisa.smpp.module;
+package com.fahdisa.smpp.module.telcoms;
 
 import java.util.ArrayList;
 import java.util.List;

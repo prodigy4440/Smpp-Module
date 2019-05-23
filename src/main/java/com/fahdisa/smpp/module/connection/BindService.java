@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.fahdisa.smpp.module;
+package com.fahdisa.smpp.module.connection;
 
 import com.cloudhopper.smpp.SmppBindType;
 import com.cloudhopper.smpp.SmppSession;
@@ -18,6 +18,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import com.fahdisa.smpp.module.handler.ClientSmppSessionHandler;
+import com.fahdisa.smpp.module.handler.SmsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,12 +85,10 @@ public class BindService {
         this.smppClient = new DefaultSmppClient();
         try {
             smppSession = smppClient.bind(config, clientSmppSessionHandler);
-            
-            System.out.println("Bind Done For " + TAG + " ");
-            System.out.println("Session Info, Name: "
-                    + TAG + ", Bind Type: " + smppSession.getBindType()
-                    + ", IsOpen: " + smppSession.isOpen() + ", IsBound: " + smppSession.isBound());
-            
+
+            logger.info("Bind Successful, TAG: {}, Bind Type: {}, IsOpen: {}, IsBound: {}",
+                    TAG, smppSession.getBindType(), smppSession.isOpen(), smppSession.isBound());
+
             scheduledFuture = SCHEDULED_EXECUTOR.scheduleAtFixedRate(
                     new EnquireLinkService(smppSession), 0, 1, TimeUnit.SECONDS);
         } catch (SmppTimeoutException | SmppChannelException
