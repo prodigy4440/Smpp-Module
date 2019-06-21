@@ -8,6 +8,7 @@ package com.fahdisa.smpp.module.handler;
 import com.cloudhopper.smpp.PduAsyncResponse;
 import com.cloudhopper.smpp.SmppConstants;
 import com.cloudhopper.smpp.impl.DefaultSmppSessionHandler;
+import com.cloudhopper.smpp.pdu.DataSm;
 import com.cloudhopper.smpp.pdu.DeliverSm;
 import com.cloudhopper.smpp.pdu.PduRequest;
 import com.cloudhopper.smpp.pdu.PduResponse;
@@ -68,6 +69,44 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
         PduResponse pduResponse = pduRequest.createResponse();
         logger.info("New PDU: {}", pduRequest);
         if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DATA_SM) {
+            DataSm dataSm = (DataSm)pduRequest;
+            String sender  = dataSm.getSourceAddress().getAddress();
+            String receiver = dataSm.getDestAddress().getAddress();
+            String message = new String(dataSm.getShortMessage());
+            if(Objects.isNull(message) || message.isEmpty()){
+                ArrayList<Tlv> tlvs = dataSm.getOptionalParameters();
+                if(Objects.nonNull(tlvs) && (!tlvs.isEmpty())){
+                    for(Tlv tlv: tlvs){
+                        if(tlv.getTag() == SmppConstants.TAG_MESSAGE_PAYLOAD){
+                            message = new String(tlv.getValue());
+                        }
+                    }
+                }
+            }
+
+            Tlv itsTlv = null;
+            ArrayList<Tlv> tlvs = dataSm.getOptionalParameters();
+            if (Objects.nonNull(tlvs) && (!tlvs.isEmpty())) {
+                for (Tlv tlv : tlvs) {
+                    if (tlv.getTag() == SmppConstants.TAG_ITS_SESSION_INFO) {
+                        itsTlv = tlv;
+                    }
+                }
+            }
+
+            if (Objects.nonNull(smsListener)) {
+                smsListener.onSms(sender, receiver, message);
+                if (Objects.nonNull(itsTlv)) {
+                    try {
+                        smsListener.onUssd(sender, receiver, message, itsTlv.getValueAsString());
+                    } catch (TlvConvertException ex) {
+                        logger.error("Error fetching tlvParameter info", ex);
+                    }
+                }else{
+                    smsListener.onUssd(sender, receiver, message, "");
+                }
+            }
+
         } else if (pduRequest.getCommandId() == SmppConstants.CMD_ID_DELIVER_SM) {
             DeliverSm deliverSm = (DeliverSm) pduRequest;
             String sender = deliverSm.getSourceAddress().getAddress();
@@ -105,7 +144,6 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
                 }else{
                     smsListener.onUssd(sender, receiver, message, "");
                 }
-
             }
         }
         return pduResponse;

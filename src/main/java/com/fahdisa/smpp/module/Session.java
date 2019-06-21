@@ -178,8 +178,6 @@ public class Session {
             submit.setDataCoding((byte) 0x0F);
             submit.setEsmClass((byte) 0x00);
             submit.setShortMessage(textBytes);
-//            submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes));
-
             switch (ussdServiceOp) {
                 case PSSD_IND:
                     submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
