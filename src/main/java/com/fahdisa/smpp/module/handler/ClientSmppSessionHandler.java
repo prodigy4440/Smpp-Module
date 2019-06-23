@@ -38,11 +38,13 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
     
     public ClientSmppSessionHandler(BindService bindService){
         super();
+        this.bindService = bindService;
     }
     
     public ClientSmppSessionHandler(BindService bindService, SmsListener smsListener){
         super();
         this.smsListener = smsListener;
+        this.bindService = bindService;
     }
     
     public void setSmsListener(SmsListener smsListener){
@@ -161,7 +163,6 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
             if(Objects.nonNull(bindService)){
                 bindService.bind();
             }
-            bindService.bind();
         } else if (t instanceof IOException) {
             logger.error("fireUnknownThrowable {}", t);
             if(bindService.getSmppSession().isClosed()){
