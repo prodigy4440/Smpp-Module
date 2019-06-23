@@ -12,32 +12,20 @@ import java.util.Objects;
  *
  * @author prodigy4440
  */
-public class ConnectionConfig {
+public class SmppConfig {
 
-    private String tag;
+    private String tag = "Untagged";
     private String systemId;
     private String password;
-    private String systemType;
-    private SmppBindType smppBindType = SmppBindType.TRANSCEIVER;
+    private String systemType = "";
+    private SmppBindType smppBindType = SmppBindType.TRANSMITTER;
     private String host;
     private Integer port;
     private Boolean autoRebind = true;
-    private Integer rebindTime = 5;
+    private Integer rebindTime = 30 * 1000;
+    private Integer connectionTimeout = 30 * 1000;
 
-    public ConnectionConfig() {
-    }
-
-    public ConnectionConfig(String tag, String systemId,String systemType, String password, 
-            SmppBindType smppBindType, String host, Integer port, Boolean autoRebind, 
-            Integer rebindTime) {
-        this.tag = tag;
-        this.systemId = systemId;
-        this.password = password;
-        this.smppBindType = smppBindType;
-        this.host = host;
-        this.port = port;
-        this.autoRebind = autoRebind;
-        this.rebindTime = rebindTime;
+    public SmppConfig() {
     }
 
     public String getTag() {
@@ -112,6 +100,14 @@ public class ConnectionConfig {
         this.rebindTime = rebindTime;
     }
 
+    public Integer getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(Integer connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -123,6 +119,7 @@ public class ConnectionConfig {
         hash = 29 * hash + Objects.hashCode(this.port);
         hash = 29 * hash + Objects.hashCode(this.autoRebind);
         hash = 29 * hash + Objects.hashCode(this.rebindTime);
+        hash = 29 * hash + Objects.hashCode(this.connectionTimeout);
         return hash;
     }
 
@@ -137,7 +134,7 @@ public class ConnectionConfig {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ConnectionConfig other = (ConnectionConfig) obj;
+        final SmppConfig other = (SmppConfig) obj;
         if (!Objects.equals(this.tag, other.tag)) {
             return false;
         }
@@ -167,7 +164,7 @@ public class ConnectionConfig {
 
     @Override
     public String toString() {
-        return "ConnectionConfig{" + "tag=" + tag + ", systemId=" + systemId 
+        return "SmppConfig{" + "tag=" + tag + ", systemId=" + systemId
                 + ", password=" + password + ", smppBindType=" + smppBindType 
                 + ", host=" + host + ", port=" + port + ", autoRebind=" + autoRebind 
                 + ", rebindTime=" + rebindTime + '}';

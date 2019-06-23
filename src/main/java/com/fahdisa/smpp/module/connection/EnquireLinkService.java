@@ -22,27 +22,29 @@ public class EnquireLinkService implements Runnable {
 
     private final Logger logger;
 
+    private final BindService bindService;
 
-    private final SmppSession smppSession;
-
-    public EnquireLinkService(SmppSession smppSession) {
-        this.smppSession = smppSession;
+    public EnquireLinkService(BindService bindService) {
+        this.bindService = bindService;
         this.logger = LoggerFactory.getLogger(EnquireLinkService.class);
     }
 
-    public EnquireLinkService(SmppSession smppSession, Logger logger) {
-        this.smppSession = smppSession;
+    public EnquireLinkService(BindService bindService, Logger logger) {
+        this.bindService = bindService;
         this.logger = logger;
     }
 
     @Override
     public void run() {
-        if ((this.smppSession != null) && this.smppSession.isBound()) {
+        if ((this.bindService.getSmppSession() != null) && this.bindService.getSmppSession().isBound()) {
             try {
-                this.smppSession.enquireLink(new EnquireLink(), 10000L);
+                this.bindService.getSmppSession().enquireLink(new EnquireLink(), 10000L);
             } catch (RecoverablePduException | UnrecoverablePduException
                     | SmppTimeoutException | SmppChannelException
                     | InterruptedException ex) {
+                if(ex.getCause() instanceof SmppChannelException){
+                    this.bindService.bind();
+                }
                 this.logger.error("Send Enquire Link Error {}", ex);
             }
         }

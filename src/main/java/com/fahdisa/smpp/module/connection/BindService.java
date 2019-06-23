@@ -43,19 +43,20 @@ public class BindService {
     private final String TAG;
     
     public BindService(String name, String systemId, String password, String systemType,
-            SmppBindType smppBindType, String host, Integer port) {
+            SmppBindType smppBindType, String host, Integer port, Integer connectionTimeout) {
         
-        TAG = name;
+       this.TAG = name;
         
         config = new SmppSessionConfiguration(smppBindType, systemId, password);
-        config.setWindowSize(20);
+        config.setWindowSize(100);
         config.setName(name);
         config.setHost(host);
         config.setPort(port);
         config.setType(smppBindType);
         config.setSystemType(systemType);
-        config.setConnectTimeout(45000);
-        config.setRequestExpiryTimeout(45000);
+        config.setConnectTimeout(connectionTimeout);
+        config.setBindTimeout(connectionTimeout);
+        config.setRequestExpiryTimeout(connectionTimeout);
         config.setWindowMonitorInterval(15000);
         config.setCountersEnabled(true);
 
@@ -90,7 +91,7 @@ public class BindService {
                     TAG, smppSession.getBindType(), smppSession.isOpen(), smppSession.isBound());
 
             scheduledFuture = SCHEDULED_EXECUTOR.scheduleAtFixedRate(
-                    new EnquireLinkService(smppSession), 0, 1, TimeUnit.SECONDS);
+                    new EnquireLinkService(this), 0, 2, TimeUnit.SECONDS);
         } catch (SmppTimeoutException | SmppChannelException
                 | UnrecoverablePduException
                 | InterruptedException ex) {

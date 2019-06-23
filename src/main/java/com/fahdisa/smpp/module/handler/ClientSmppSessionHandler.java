@@ -20,6 +20,7 @@ import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import com.cloudhopper.smpp.type.SmppChannelException;
 import com.fahdisa.smpp.module.connection.BindService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,7 +167,9 @@ public class ClientSmppSessionHandler extends DefaultSmppSessionHandler {
             if(bindService.getSmppSession().isClosed()){
                 bindService.bind();
             }
-        } else {
+        } else if(t instanceof SmppChannelException) {
+            bindService.bind();
+        }else {
             logger.error("fireUnknownThrowable {}", t);
             if(bindService.getSmppSession().isClosed()){
                 bindService.bind();

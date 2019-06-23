@@ -26,7 +26,7 @@ import java.util.function.BiConsumer;
 
 import com.fahdisa.smpp.module.connection.BindService;
 import com.fahdisa.smpp.module.domain.SmsStatus;
-import com.fahdisa.smpp.module.config.ConnectionConfig;
+import com.fahdisa.smpp.module.config.SmppConfig;
 import com.fahdisa.smpp.module.handler.SmsListener;
 import com.fahdisa.smpp.module.ussd.UssdServiceOp;
 import org.slf4j.Logger;
@@ -52,12 +52,12 @@ public class Session {
 
     private final Map<String, Object> metaData = new HashMap<>();
 
-    public Session(ConnectionConfig config) {
+    public Session(SmppConfig config) {
         this.rebind = config.getAutoRebind();
         this.nextRebind = config.getRebindTime();
         this.bindService = new BindService(config.getTag(), config.getSystemId(),
                 config.getPassword(), config.getSystemType(), config.getSmppBindType(),
-                config.getHost(), config.getPort());
+                config.getHost(), config.getPort(), config.getConnectionTimeout());
     }
 
     public void setSmsReceiver(SmsListener smsListener) {
