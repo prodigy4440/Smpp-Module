@@ -5,6 +5,7 @@
  */
 package com.fahdisa.smpp.module;
 
+import com.cloudhopper.commons.charset.Charset;
 import com.cloudhopper.commons.charset.CharsetUtil;
 import com.cloudhopper.commons.util.HexUtil;
 import com.cloudhopper.smpp.SmppConstants;
@@ -146,29 +147,29 @@ public class Session {
             submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
             submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
             submit.setShortMessage(textBytes);
+            Tlv tlv;
             if (messageType == 1) {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP,
-                        HexUtil.toHexString(2).getBytes(),
-                        SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x02}, "ussd_service_op");
             } else {
-                submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP,
-                        HexUtil.toHexString(11).getBytes(),
-                        SmppConstants.TAG_NAME_MAP.get(SmppConstants.TAG_USSD_SERVICE_OP)));
+                tlv = new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, new byte[]{0x11}, "ussd_service_op");
             }
-
+            submit.setOptionalParameter(tlv);
             submit.setServiceType("USSD");
-            SubmitSmResp submitSmResp = bindService.getSmppSession().submit(submit, 10000);
-            logger.info("Submit_Sm Resp {}", submitSmResp);
+            bindService.getSmppSession().sendRequestPdu(submit, 10000, false);
         } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
                 | SmppTimeoutException | SmppChannelException ie) {
-            logger.error("SubmitSm Error {}", ie);
+            logger.error("Submit_Sm Error {}", ie);
         }
     }
 
     public void sendAsyncUssd(String source, String destination, String message, UssdServiceOp ussdServiceOp, String meta) {
+       sendAsyncUssd(source, destination, message, ussdServiceOp, meta, CharsetUtil.CHARSET_GSM);
+    }
+
+    public void sendAsyncUssd(String source, String destination, String message, UssdServiceOp ussdServiceOp, String meta, Charset charset) {
         try {
 
-            byte[] textBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_UTF_8);
+            byte[] textBytes = CharsetUtil.encode(message, charset);
             SubmitSm submit = new SubmitSm();
             submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
 

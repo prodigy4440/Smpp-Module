@@ -14,10 +14,7 @@ import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppTimeoutException;
 import com.cloudhopper.smpp.type.UnrecoverablePduException;
 import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import com.fahdisa.smpp.module.handler.ClientSmppSessionHandler;
 import com.fahdisa.smpp.module.handler.SmsListener;
@@ -31,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class BindService {
     
     private final Logger logger = LoggerFactory.getLogger(BindService.class);
-    
+
     private final ScheduledExecutorService SCHEDULED_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture;
     
@@ -44,7 +41,7 @@ public class BindService {
     
     public BindService(String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port, Integer connectionTimeout) {
-        
+
        this.TAG = name;
         
         config = new SmppSessionConfiguration(smppBindType, systemId, password);
@@ -91,7 +88,7 @@ public class BindService {
                     TAG, smppSession.getBindType(), smppSession.isOpen(), smppSession.isBound());
 
             scheduledFuture = SCHEDULED_EXECUTOR.scheduleAtFixedRate(
-                    new EnquireLinkService(this), 0, 2, TimeUnit.SECONDS);
+                    new EnquireLinkService(this), 0, 5, TimeUnit.SECONDS);
         } catch (SmppTimeoutException | SmppChannelException
                 | UnrecoverablePduException
                 | InterruptedException ex) {
