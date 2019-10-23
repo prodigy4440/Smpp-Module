@@ -125,6 +125,9 @@ public class Session {
                 }
 
                 SubmitSmResp submitResp = bindService.getSmppSession().submit(submitMsg, 15000);
+                System.out.println("==================================");
+                System.out.println(submitResp);
+                System.out.println("==================================");
                 SmsStatus status = new SmsStatus(true, submitResp.getMessageId(), "Success");
                 return status;
             } catch (RecoverablePduException | SmppChannelException | SmppTimeoutException
