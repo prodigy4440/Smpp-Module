@@ -26,24 +26,24 @@ import org.slf4j.LoggerFactory;
  * @author prodigy4440
  */
 public class BindService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(BindService.class);
 
     private final ScheduledExecutorService SCHEDULED_EXECUTOR = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture;
-    
+
     private final SmppSessionConfiguration config;
     private DefaultSmppClient smppClient;
     private SmppSession smppSession;
     private final ClientSmppSessionHandler clientSmppSessionHandler;
-    
+
     private final String TAG;
-    
+
     public BindService(String name, String systemId, String password, String systemType,
             SmppBindType smppBindType, String host, Integer port, Integer connectionTimeout) {
 
        this.TAG = name;
-        
+
         config = new SmppSessionConfiguration(smppBindType, systemId, password);
         config.setWindowSize(100);
         config.setName(name);
@@ -61,22 +61,22 @@ public class BindService {
         loggingOptions.setLogPdu(false);
         loggingOptions.setLogBytes(false);
         config.setLoggingOptions(loggingOptions);
-        
+
         clientSmppSessionHandler = new ClientSmppSessionHandler(this);
     }
-    
+
     public void setSmsListener(SmsListener smsListener){
         if(Objects.nonNull(clientSmppSessionHandler)){
             clientSmppSessionHandler.setSmsListener(smsListener);
         }
     }
-    
+
     public SmppSession getSmppSession(){
         return this.smppSession;
     }
 
     public void bind() {
-        logger.info("****** Entering Session Bind For {}  ******", TAG);
+        logger.info("****** Entering Session Bind For {}  with {} and {} ******", TAG, config.getHost(), config.getPort());
         if (Objects.nonNull(smppSession)) {
             unbind();
         }
@@ -94,7 +94,7 @@ public class BindService {
                 | InterruptedException ex) {
             logger.error("Bind Error {}", ex);
         }
-        logger.info("****** Exiting Session Bind For {} ******", TAG);
+        logger.info("****** Exiting Session Bind For {} with {} and {} ******", TAG, config.getHost(), config.getPort());
     }
 
     public void unbind() {
