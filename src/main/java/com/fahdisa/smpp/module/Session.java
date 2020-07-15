@@ -216,6 +216,63 @@ public class Session {
         }
     }
 
+
+    public void sendAsyncLongUssd(String source, String destination, String message, UssdServiceOp ussdServiceOp, String meta, Charset charset) {
+        try {
+
+            byte[] textBytes = CharsetUtil.encode(message, charset);
+            SubmitSm submit = new SubmitSm();
+            submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_NOT_REQUESTED);
+
+            submit.setSourceAddress(new Address((byte) 0x00, (byte) 0x00, source));
+            submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, destination));
+
+            submit.setDataCoding((byte) 0x0F);
+            submit.setEsmClass((byte) 0x00);
+            if (textBytes != null && textBytes.length > 255) {
+                submit.addOptionalParameter(new Tlv(SmppConstants.TAG_MESSAGE_PAYLOAD, textBytes, "message_payload"));
+            } else {
+                submit.setShortMessage(textBytes);
+            }
+            switch (ussdServiceOp) {
+                case PSSD_IND:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
+                    break;
+                case PSSR_IND:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSR_IND.getValue()));
+                    break;
+                case USSR_REQ:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSR_REQ.getValue()));
+                    break;
+                case USSN_REQ:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSN_REQ.getValue()));
+                    break;
+                case PSSD_RES:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_RES.getValue()));
+                    break;
+                case PSSR_RES:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSR_RES.getValue()));
+                    break;
+                case USSR_CNF:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSR_CNF.getValue()));
+                    break;
+                case USSN_CNF:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.USSN_CNF.getValue()));
+                    break;
+                default:
+                    submit.setOptionalParameter(new Tlv(SmppConstants.TAG_USSD_SERVICE_OP, UssdServiceOp.PSSD_IND.getValue()));
+
+            }
+
+            submit.setServiceType(null);
+            bindService.getSmppSession().sendRequestPdu(submit, 10000, false);
+        } catch (InterruptedException | RecoverablePduException | UnrecoverablePduException
+                | SmppTimeoutException | SmppChannelException ie) {
+            logger.error("Submit_Sm Error {}", ie);
+        }
+    }
+
+
     public boolean querySms() {
         return false;
     }

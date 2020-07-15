@@ -24,19 +24,18 @@ public class SmppModule {
 
     //Test
     public static void main(String[] args) throws InterruptedException {
-
-        SmppConfig config = new SmppConfig.Builder()
-                .setAutoRebind(true)
-                .setRebindTime(5*5*1000)
-                .setHost("localhost")
-                .setPort(8800)
-                .setPassword("1234")
-                .setSystemId("SystemId")
-                .setTag("Sample Tag")
-                .build();
-
-        Session session = new Session(config);
-        session.bindSession();
+//        SmppConfig config = new SmppConfig.Builder()
+//                .setAutoRebind(true)
+//                .setRebindTime(5*5*1000)
+//                .setHost("localhost")
+//                .setPort(8800)
+//                .setPassword("1234")
+//                .setSystemId("SystemId")
+//                .setTag("Sample Tag")
+//                .build();
+//
+//        Session session = new Session(config);
+//        session.bindSession();
 //
 //        TimeUnit.SECONDS.sleep(10);
 //        session.bindSession();
